@@ -2,7 +2,7 @@
 
 import math
 import sim
-import numpy as np # Import necessário para o código de controle
+import numpy as np 
 
 class Pioneer():
 
@@ -22,14 +22,11 @@ class Pioneer():
         
         
         self.pose_final = np.array([1.0, 3.0])  
-        self.control_phase = 'ALIGNMENT'       
+        self.control_phase = 'ALINHAMENTO'       
         self.Min_error_distance = 0.1          
 
     def connect_Pioneer(self, port):
        
-        """
-        Função usada para se comunicar com o CoppeliaSim.
-        """
      
         sim.simxFinish(-1)
         clientID = sim.simxStart('127.0.0.1', port, True, True, 2000, 5)
@@ -104,7 +101,7 @@ class Pioneer():
                     
                    
                     
-                    if self.control_phase == 'ALIGNMENT':
+                    if self.control_phase == 'ALINHAMENTO':
                         
                         # CÁLCULO DE ERRO DE ORIENTAÇÃO
                         erro_orientacao = self.theta_alinhamento - theta_robo
