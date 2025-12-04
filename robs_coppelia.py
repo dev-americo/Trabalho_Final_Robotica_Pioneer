@@ -1,43 +1,36 @@
-"""
-path_Pioneer.py
 
-Controle de Navegação em Duas Fases (Alinhamento + Movimento Linear).
-Implementação do controle fornecido pelo usuário dentro do loop do CoppeliaSim.
-"""
 
 import math
 import sim
 import numpy as np # Import necessário para o código de controle
 
 class Pioneer():
-    """
-    Classe principal para controlar o robô Pioneer no CoppeliaSim.
-    """
+
 
     def __init__(self):
-        """ Inicializações de variáveis globais e constantes do controlador. """
+        
         self.y_out = []
         self.x_out = []
         
-        # --- CONSTANTES DO ROBÔ E DO CONTROLADOR ---
-        self.w = 0.381                 # Distância entre rodas (Eixo, L)
-        self.v_max_roda = 1.5          # Velocidade linear máxima da roda
-        self.theta_dot_max = 2 * self.v_max_roda / self.w # Velocidade angular máxima (omega_max)
-        self.Kp_theta = 2.0            # Ganho Proporcional para Orientação
+       
+        self.w = 0.381                 
+        self.v_max_roda = 1.5         
+        self.theta_dot_max = 2 * self.v_max_roda / self.w 
+        self.Kp_theta = 2.0          
         self.v_l_max = 1.5
         self.v_r_max = 1.5
         
-        # --- VARIÁVEIS DE ESTADO E META ---
-        self.pose_final = np.array([1.0, 3.0])  # Posição final desejada (X, Y)
-        self.control_phase = 'ALIGNMENT'        # 'ALIGNMENT' ou 'LINEAR'
-        self.Min_error_distance = 0.1           # Distância mínima para critério de parada
+        
+        self.pose_final = np.array([1.0, 3.0])  
+        self.control_phase = 'ALIGNMENT'       
+        self.Min_error_distance = 0.1          
 
     def connect_Pioneer(self, port):
-        # ... (Função connect_Pioneer permanece a mesma) ...
+       
         """
         Função usada para se comunicar com o CoppeliaSim.
         """
-        # Conexão com coppeliaSim
+     
         sim.simxFinish(-1)
         clientID = sim.simxStart('127.0.0.1', port, True, True, 2000, 5)
         if clientID == 0:
@@ -66,11 +59,11 @@ class Pioneer():
         if clientID is None:
             return
 
-        # Inicialização de variáveis de controle e loop
+       
         Number_Iterations = 0
-        a = 1 # Condição para simulação: 1 = rodando, 0 = parar
+        a = 1 
         
-        # Variáveis de velocidade (iniciais)
+       
         vl, vd = 0.0, 0.0
 
         if (sim.simxGetConnectionId(clientID) != -1):
@@ -78,9 +71,9 @@ class Pioneer():
             # Loop de Simulação
             while (a == 1):
 
-                # 1. Configuração e Leitura Inicial
+                
                 if Number_Iterations <= 1:
-                    # Leitura inicial de streaming (modo síncrono é geralmente preferido)
+                    
                     s, positiona = sim.simxGetObjectPosition(clientID, robot, -1, sim.simx_opmode_streaming)
                     s, orientation = sim.simxGetObjectOrientation(clientID, robot, -1, sim.simx_opmode_blocking)
                     
@@ -90,8 +83,8 @@ class Pioneer():
                     delta_y = self.pose_final[1] - pose_inicial[1]
                     self.theta_alinhamento = math.atan2(delta_y, delta_x)
                     
-                    # NOVO: Posiciona o 'ball' na pose final para visualização
-                    target_position = [self.pose_final[0], self.pose_final[1], 0.0] # X, Y, Z (no chão)
+                    # Posiciona o 'ball' na pose final para visualização
+                    target_position = [self.pose_final[0], self.pose_final[1], 0.0] 
                     sim.simxSetObjectPosition(clientID, ball, -1, target_position, sim.simx_opmode_blocking)
                     print(f"Alvo 'ball' posicionado em X={target_position[0]}, Y={target_position[1]} para visualização.")
                     
@@ -107,10 +100,9 @@ class Pioneer():
                     
                     x_robo = positiona[0]
                     y_robo = positiona[1]
-                    theta_robo = orientation[2] # Orientação do robô no eixo Z
+                    theta_robo = orientation[2] 
                     
-                    
-                    # --- CÓDIGO DE CONTROLE EM DUAS FASES ---
+                   
                     
                     if self.control_phase == 'ALIGNMENT':
                         
@@ -121,9 +113,9 @@ class Pioneer():
 
                         if np.abs(erro_orientacao) > np.radians(1.0):
                             
-                            # CONTROLE PURELY ROTACIONAL (v=0, pois v_r_max = v_l_max)
+                            
                             delta_v = self.v_r_max - self.v_l_max
-                            v = (1/2)*delta_v # Deve ser 0.0
+                            v = (1/2)*delta_v 
                             
                             theta_dot_control = self.Kp_theta * erro_orientacao
                             
@@ -144,9 +136,7 @@ class Pioneer():
 
                     elif self.control_phase == 'LINEAR':
                         
-                        # TRANSFORMAÇÃO DE POSE PARA CÁLCULO DE ERRO LOCAL (erro_x_atual)
-                        # NOTA: Esta parte AGORA usa o self.pose_final=[2.0, 3.0], 
-                        # o que é o alvo CORRETO e está visualmente marcado pelo 'ball'.
+                        
                         p_final_homogeneo = np.array([self.pose_final[0], self.pose_final[1], 1.0])
 
                         t_inicial = np.array([
