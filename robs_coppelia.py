@@ -21,7 +21,7 @@ class Pioneer():
         self.v_r_max = 1.5
         
         
-        self.pose_final = np.array([1.0, 3.0])  
+        self.pose_final = np.array([1.0, 2.0])  
         self.control_phase = 'ALINHAMENTO'       
         self.Min_error_distance = 0.1          
 
