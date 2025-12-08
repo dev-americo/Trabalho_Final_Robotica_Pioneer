@@ -37,7 +37,7 @@ fprintf('\n');
 pose_inicial = input('Coloque a pose inicial do robô [x0,y0,theta0]: ');    % pose inicial do robo
 Movimenta(pose_inicial, velocidade_roda_direita_girar, velocidade_roda_esquerda_girar, eixo, delta_t, velocidade_maxima, velocidade_roda_direita_maxima, velocidade_roda_esquerda_maxima)
 
-function Repetir = Movimenta(pose_inicial, velocidade_roda_direita_girar, velocidade_roda_esquerda_girar, eixo, delta_t, velocidade_maxima, velocidade_roda_direita_maxima, velocidade_roda_esquerda_maxima)
+function Movimenta(pose_inicial, velocidade_roda_direita_girar, velocidade_roda_esquerda_girar, eixo, delta_t, velocidade_maxima, velocidade_roda_direita_maxima, velocidade_roda_esquerda_maxima)
     ponto_final = input('Coloque o ponto final do robô [xFinal, yFinal]: ');    % pose final do robo 
     fprintf('\n');
 
@@ -59,7 +59,7 @@ function Repetir = Movimenta(pose_inicial, velocidade_roda_direita_girar, veloci
     velocidade_roda_direita_girar_precisao = velocidade_roda_direita_girar * 0.1;         % reduz a velocidade da roda direita
     velocidade_roda_esquerda_girar_precisao = velocidade_roda_esquerda_girar * 0.1;       % reduz a velocidade da roda esquerda
 
-    while (erro(k,3) > 1 && erro(k,3) < 359) || (erro(k,3) < -1 && erro(k,3) > -359)  % enquanto o erro angular for maior que 2 graus
+    while (erro(k,3) > 1.5 && erro(k,3) < 358.5) || (erro(k,3) < -1.5 && erro(k,3) > -358.5)  % enquanto o erro angular for maior que 2 graus
 
         %grafico incremental
         cla;    
@@ -126,7 +126,7 @@ function Repetir = Movimenta(pose_inicial, velocidade_roda_direita_girar, veloci
     % Movimento em linha reta até o ponto final
     theta_ponto= rad2deg((velocidade_roda_direita_maxima -velocidade_roda_esquerda_maxima)/eixo); 
 
-    while erro_x_atual > 0.1
+    while erro_x_atual > 0.12
         
         % atualização das poses
         pose(k+1,1) = pose(k,1) + cosd(pose(k,3)) * (velocidade_maxima * delta_t);
